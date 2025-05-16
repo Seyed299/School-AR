@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مدرسه ابتدایی + واقعیت افزوده</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn&display=swap" rel="stylesheet">
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
+  <style>
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+      background-color: #f0f8ff;
+      margin: 0;
+      padding: 0;
+      direction: rtl;
+      text-align: right;
+    }
+    header, footer {
+      background-color: #0288d1;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+    }
+    main { padding: 2rem; }
+    .ar-container { text-align: center; margin-top: 2rem; }
+    .btn {
+      background-color: #ff4081;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px;
+    }
+    #qrScanner, model-viewer, #showAR { display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>وبسایت آموزش ابتدایی + واقعیت افزوده</h1>
+    <p>پایه اول تا ششم دبستان</p>
+  </header>
+  
+  <main>
+    <h2>خوش آمدید!</h2>
+    <p>در این وبسایت می‌توانید مطالب آموزشی مربوط به هر پایه را مشاهده کنید.</p>
+
+    <!-- بخش بارگذاری فایل سه‌بعدی -->
+    <div class="ar-container">
+      <input type="file" id="fileUpload" accept=".glb,.gltf,.obj,.fbx,.dae,.3ds,.stl,.ply,.usd,.usdz,.vrml,.x3d,.ma,.mb,.blend,.abc,.lx,.c4d,.lwo,.bvh,.ifc" onchange="handleFileUpload()">
+      <model-viewer id="modelViewer" src="" alt="مدل سه‌بعدی" auto-rotate camera-controls ar ar-modes="webxr scene-viewer quick-look"></model-viewer>
+      <button id="showAR" class="btn" onclick="activateAR()">نمایش مدل در محیط AR</button>
+    </div>
+
+    <!-- بخش اسکن QR کد -->
+    <div class="ar-container">
+      <button class="btn" onclick="startScanner()">اسکن QR کد</button>
+      <video id="qrScanner" width="300" height="200" autoplay playsinline></video>
+    </div>
+  </main>
+
+  <footer>
+    &copy; ۲۰۲۵ - طراحی شده توسط مهندس سید حسین
+  </footer>
+
+  <!-- جاوااسکریپت برای مدیریت فایل سه‌بعدی -->
+  <script>
+    function handleFileUpload() {
+      const file = document.getElementById('fileUpload').files[0];
+      if (file) {
+        document.getElementById('modelViewer').src = URL.createObjectURL(file);
+        document.getElementById('modelViewer').style.display = 'block';
+        document.getElementById('showAR').style.display = 'block';
+      }
+    }
+
+    function activateAR() {
+      const modelViewer = document.getElementById('modelViewer');
+      if (modelViewer && modelViewer.canActivateAR) {
+        modelViewer.activateAR();
+        alert("مدل سه‌بعدی در محیط واقعی نمایش داده شد!");
+      } else {
+        alert("متأسفم، دستگاه شما از WebXR پشتیبانی نمی‌کند.");
+      }
+    }
+
+    async function startScanner() {
+      try {
+        const permission = await navigator.permissions.query({ name: 'camera' });
+
+        if (permission.state === 'denied') {
+          alert("دسترسی به دوربین غیرفعال شده! لطفاً در تنظیمات مرورگر اجازه دسترسی بدهید.");
+          return;
+        }
+
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        document.getElementById('qrScanner').srcObject = stream;
+        document.getElementById('qrScanner').style.display = 'block';
+        alert("دوربین فعال شد! QR کد را جلوی دوربین بگیرید.");
+      } catch (error) {
+        alert("امکان دسترسی به دوربین وجود ندارد! لطفاً تنظیمات مرورگر را بررسی کنید.");
+      }
+    }
+  </script>
+</body>
+</html>
